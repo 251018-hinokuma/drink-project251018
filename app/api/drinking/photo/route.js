@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { User } from "@/utils/schemaModels";
 import connectDB from "@/utils/database";
 import { GoogleGenAI } from "@google/genai";
-
+export const maxDuration = 60;
 // ★ IPv4 のみで接続する設定
 dns.setDefaultResultOrder("ipv4first");
 if (typeof net.setDefaultAutoSelectFamily === "function") {
