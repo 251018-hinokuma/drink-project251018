@@ -21,7 +21,8 @@ export default function PhotoMain() {
     setNowScreen,
   } = useDrink();
 
-  const resizeImage = (file, maxSize = 512, quality = 0.6) => {
+  // プレビュー用に軽量リサイズ
+  const resizeImage = (file, maxSize = 480, quality = 0.6) => {
     return new Promise((resolve) => {
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -52,6 +53,38 @@ export default function PhotoMain() {
     });
   };
 
+  // ★ 「飲む前(左)」と「飲んだ後(右)」を1枚の画像に結合してAIの読み込みを高速化
+  const mergeImagesSideBySide = (beforeSrc, afterSrc, targetHeight = 440, quality = 0.55) => {
+    return new Promise((resolve) => {
+      const img1 = new Image();
+      const img2 = new Image();
+      let loaded = 0;
+
+      const onLoad = () => {
+        loaded++;
+        if (loaded < 2) return;
+
+        const w1 = Math.round((img1.width * targetHeight) / img1.height);
+        const w2 = Math.round((img2.width * targetHeight) / img2.height);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = w1 + w2;
+        canvas.height = targetHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img1, 0, 0, w1, targetHeight);
+        ctx.drawImage(img2, w1, 0, w2, targetHeight);
+
+        resolve(canvas.toDataURL("image/jpeg", quality));
+      };
+
+      img1.onload = onLoad;
+      img2.onload = onLoad;
+      img1.src = beforeSrc;
+      img2.src = afterSrc;
+    });
+  };
+
   const handleFileChange = async (e, setImage) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -70,16 +103,21 @@ export default function PhotoMain() {
 
     setIsSubmitting(true);
     setProgress(5);
-    setStatus("サーバーへ送信中...");
+    setStatus("比較画像を作成中...");
 
     try {
+      // ★ 2枚を左右1枚に結合してから送信
+      const mergedImage = await mergeImagesSideBySide(imageBefore, imageAfter);
+
+      setProgress(10);
+      setStatus("サーバーへ送信中...");
+
       const payload = {
         userId: user?.userId || 1,
         useMydrink: Boolean(useMydrink),
         reqMyDrinkImgName: useMydrinkInfo?.drinkName || "",
         reqMyDrinkImgCalorie: useMydrinkInfo?.drinkCalorie || 0,
-        reqDrinkImgBefor: imageBefore,
-        reqDrinkImgAfter: imageAfter,
+        reqMergedDrinkImg: mergedImage,
         customValue: customValue ? Number(customValue) : null,
       };
 
