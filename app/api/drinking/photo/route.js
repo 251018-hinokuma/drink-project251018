@@ -185,6 +185,8 @@ export async function POST(request) {
 
             const response = await generateContentWithRetry(ai, {
               model: "gemini-3.8-flash",
+              mediaResolution: "MEDIA_RESOLUTION_LOW",
+              thinkingLevel: "LOW",
               contents: [
                 `添付された2枚の画像（画像1:飲む前, 画像2:飲んだ後）を比較し、指定されたJSON形式で解析結果を出力してください。
                  マイドリンク名: ${reqMyDrinkImgName}
@@ -232,6 +234,8 @@ export async function POST(request) {
 
             const response = await generateContentWithRetry(ai, {
               model: "gemini-3.8-flash",
+              mediaResolution: "MEDIA_RESOLUTION_LOW",
+              thinkingLevel: "LOW",
               contents: [
                 `添付された2枚の画像を比較し、商品名を特定してください。飲んだ量は ${parsedCustomValue} ml と確定しています。指定されたJSON形式で結果を出力してください。`,
                 postDrinkImgBefor,
@@ -274,6 +278,8 @@ export async function POST(request) {
 
             const response = await generateContentWithRetry(ai, {
               model: "gemini-3.8-flash",
+              mediaResolution: "MEDIA_RESOLUTION_LOW",
+              thinkingLevel: "LOW",
               contents: [
                 "添付された2枚の画像（画像1:飲む前, 画像2:飲んだ後）を比較し、指定されたJSON形式で解析結果を出力してください。",
                 postDrinkImgBefor,
