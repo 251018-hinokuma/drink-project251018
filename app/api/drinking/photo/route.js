@@ -220,7 +220,7 @@ export async function POST(request) {
             startAiTimer("4. AI解析（マイドリンク）");
 
             const response = await generateContentWithRetry(ai, {
-              model: "gemini-3.8-flash",
+              model: "gemini-2.5-flash",
               contents: [
                 `${imagePromptPrefix}指定されたJSON形式で解析結果を出力してください。
                  マイドリンク名: ${reqMyDrinkImgName}
@@ -265,7 +265,7 @@ export async function POST(request) {
             startAiTimer("4. AI解析（一般・量指定あり）");
 
             const response = await generateContentWithRetry(ai, {
-              model: "gemini-3.8-flash",
+              model: "gemini-2.5-flash",
               contents: [
                 `${imagePromptPrefix}商品名を特定してください。飲んだ量は ${parsedCustomValue} ml と確定しています。指定されたJSON形式で結果を出力してください。`,
                 ...imageParts,
@@ -305,7 +305,7 @@ export async function POST(request) {
             startAiTimer("4. AI解析（一般・全自動）");
 
             const response = await generateContentWithRetry(ai, {
-              model: "gemini-3.8-flash",
+              model: "gemini-2.5-flash",
               contents: [
                 `${imagePromptPrefix}指定されたJSON形式で解析結果を出力してください。`,
                 ...imageParts,
