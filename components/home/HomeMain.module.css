@@ -1,0 +1,558 @@
+.wrapper {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1e293b;
+}
+
+.loadingScreen {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: bold;
+  color: #334155;
+  background-color: #f8fafc;
+}
+
+/* スマホ縦画面ベース（設計図の外枠） */
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  min-height: 720px;
+  max-height: 920px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  transition: background 0.6s ease;
+}
+
+/* 昼と夜の背景グラデーション */
+.daySky {
+  background: linear-gradient(180deg, #bae6fd 0%, #e0f2fe 58%, #dcfce7 100%);
+}
+
+.nightSky {
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 62%, #14532d 100%);
+}
+
+/* 上部のユーザー名・設定時間バー */
+.topMetaBar {
+  position: absolute;
+  top: 6px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(15, 23, 42, 0.75);
+  z-index: 30;
+  pointer-events: none;
+}
+
+.nightSky .topMetaBar {
+  color: rgba(241, 245, 249, 0.8);
+}
+
+/* --- 太陽 / 月（時間で移動・正午で真ん中） --- */
+.celestialBody {
+  position: absolute;
+  transform: translateX(-50%);
+  width: 148px;
+  height: 148px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  transition: left 0.8s ease, top 0.8s ease;
+}
+
+/* 昼：太陽（設計図の赤〜暖色系の大きな円） */
+.sunBody {
+  background: radial-gradient(circle at 35% 35%, #fca5a5, #f87171 70%, #ef4444 100%);
+  border: 2px solid #dc2626;
+  box-shadow: 0 0 28px rgba(248, 113, 113, 0.55);
+  color: #1e293b;
+}
+
+/* 夜：月 */
+.moonBody {
+  background: radial-gradient(circle at 35% 35%, #fef08a, #fde047 75%, #eab308 100%);
+  border: 2px solid #ca8a04;
+  box-shadow: 0 0 28px rgba(253, 224, 71, 0.45);
+  color: #0f172a;
+}
+
+.celestialBgImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.celestialInfo {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  line-height: 1.3;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+}
+
+.clockText {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.weatherMetrics {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* --- 左上：現在地と天気（雲・雨） --- */
+.weatherZone {
+  position: absolute;
+  top: 32px;
+  left: 14px;
+  width: 185px;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.locationBadge {
+  position: relative;
+  z-index: 22;
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1.5px solid #334155;
+  border-radius: 6px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  white-space: nowrap;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cloudBox {
+  margin-top: -8px;
+  width: 136px;
+  height: 76px;
+  background-color: #ffffff;
+  border: 1.5px solid #475569;
+  border-radius: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.1);
+  animation: cloudFloat 4s ease-in-out infinite;
+}
+
+.clearBadge {
+  margin-top: 8px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.cloudFallback,
+.clearFallback {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.weatherImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@keyframes cloudFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* 雨アニメーション */
+.precipitation {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.precipitation span {
+  width: 2px;
+  height: 14px;
+  background-color: #0284c7;
+  border-radius: 2px;
+  animation: rainFall 0.9s linear infinite;
+}
+
+.precipitation span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.precipitation span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+.precipitation span:nth-child(4) {
+  animation-delay: 0.1s;
+}
+.precipitation span:nth-child(5) {
+  animation-delay: 0.3s;
+}
+
+@keyframes rainFall {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(22px);
+    opacity: 0;
+  }
+}
+
+/* 雪アニメーション */
+.snowfall {
+  display: flex;
+  gap: 14px;
+  margin-top: 4px;
+  color: #ffffff;
+  font-size: 14px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* --- 左中段：時計回り％タイマー --- */
+.timerZone {
+  position: absolute;
+  top: 41%;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 20;
+}
+
+.timerRing {
+  width: 78px;
+  height: 78px;
+  border-radius: 50%;
+  border: 2px solid #334155;
+  padding: 6px;
+  /* 時計回りに％が増える円錐グラデーション */
+  background: conic-gradient(
+    #0ea5e9 var(--timer-deg, 0deg),
+    #e2e8f0 var(--timer-deg, 0deg)
+  );
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease;
+}
+
+.timerRing:active {
+  transform: scale(0.95);
+}
+
+.timerInner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2px;
+}
+
+.timerLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: #334155;
+  line-height: 1.1;
+}
+
+.timerIconImg {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.timerPercent {
+  font-size: 12px;
+  font-weight: 800;
+  color: #0284c7;
+  margin-top: 2px;
+}
+
+.timerSubText {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.8);
+  color: #1e293b;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+
+/* --- 中央：花（進捗段階0〜4） --- */
+.centerFlowerZone {
+  position: absolute;
+  top: 52%;
+  left: 48%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 15;
+}
+
+.flowerWrapper {
+  width: 138px;
+  height: 108px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 2px solid #334155;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+/* 2までは元気 */
+.flowerHealthy {
+  transform: rotate(0deg) scale(1);
+}
+
+/* 3以上はしおれる表現 */
+.flowerWilted {
+  transform: rotate(16deg) translateY(8px) scale(0.95);
+  filter: saturate(0.55) brightness(0.92);
+  border-color: #a16207;
+}
+
+.flowerFallback {
+  font-size: 15px;
+  font-weight: 800;
+  color: #15803d;
+}
+
+.flowerWilted .flowerFallback {
+  color: #a16207;
+}
+
+.flowerImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 茎のライン（設計図中央の線） */
+.stemLine {
+  width: 3px;
+  height: 54px;
+  background-color: #16a34a;
+}
+
+.progressBadge {
+  font-size: 11px;
+  font-weight: 700;
+  color: #1e293b;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 2px;
+}
+
+/* --- 右側：縦並びメニューバー（水筒・本・歯車・絵） --- */
+.rightMenuBar {
+  position: absolute;
+  top: 39%;
+  right: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  z-index: 25;
+}
+
+.menuButton {
+  background-color: #ffffff;
+  border: 2px solid #334155;
+  color: #0f172a;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+  padding: 4px;
+}
+
+.menuButton:hover {
+  background-color: #f1f5f9;
+}
+
+.menuButton:active {
+  transform: scale(0.93);
+}
+
+/* 1. 水筒（マイドリンク） */
+.bottleShape {
+  width: 56px;
+  height: 76px;
+  border-radius: 14px 14px 8px 8px;
+  position: relative;
+}
+
+.bottleShape::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 22px;
+  height: 6px;
+  background-color: #ffffff;
+  border: 2px solid #334155;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+}
+
+/* 2. 本・リボン（記録） */
+.bookShape {
+  width: 68px;
+  height: 52px;
+  border-radius: 8px;
+}
+
+/* 3. 歯車（設定） */
+.gearShape {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border-style: dashed;
+}
+
+/* 4. 絵（UI変更） */
+.uiPictureShape {
+  width: 62px;
+  height: 50px;
+  border-radius: 4px;
+}
+
+.menuFallbackText {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-align: center;
+  word-break: keep-all;
+}
+
+.menuIconImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* --- 下部中央：葉っぱの土台＋水分補給（じょうろ） --- */
+.bottomWateringZone {
+  position: absolute;
+  bottom: 34px;
+  left: 48%;
+  transform: translateX(-50%);
+  width: 230px;
+  height: 115px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+}
+
+.leafLeft,
+.leafRight {
+  position: absolute;
+  bottom: 6px;
+  width: 96px;
+  height: 56px;
+  background-color: #bbf7d0;
+  border: 2px solid #16a34a;
+  z-index: 1;
+}
+
+.leafLeft {
+  left: 14px;
+  border-radius: 50px 0 50px 0;
+  transform: rotate(-18deg);
+}
+
+.leafRight {
+  right: 14px;
+  border-radius: 0 50px 0 50px;
+  transform: rotate(18deg);
+}
+
+.wateringButton {
+  position: relative;
+  z-index: 2;
+  width: 116px;
+  height: 76px;
+  background-color: #ffffff;
+  border: 2.5px solid #0284c7;
+  border-radius: 14px;
+  color: #0369a1;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.25);
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.wateringButton:hover {
+  background-color: #f0f9ff;
+}
+
+.wateringButton:active {
+  transform: scale(0.95);
+}
+
+.wateringFallbackText {
+  font-size: 16px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.wateringIconImg {
+  width: 85%;
+  height: 85%;
+  object-fit: contain;
+}
