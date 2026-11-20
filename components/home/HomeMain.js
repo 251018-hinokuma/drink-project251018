@@ -68,7 +68,6 @@ export default function HomeMain() {
     );
   }
 
-  // 選択中の UIId に応じて適用する CSS を切り替え
   const styles = THEME_STYLES[Number(useUI.UIId)] || flowerStyles;
 
   // --- 1. 現在時刻と昼夜・太陽/月の位置計算 ---
@@ -152,6 +151,9 @@ export default function HomeMain() {
         className={`${styles.stage} ${isDay ? styles.daySky : styles.nightSky} ${currentProgressClass}`}
         style={stageBackgroundStyle}
       >
+        {/* 水槽用：背景専用の水濁りレイヤー（文字やキャラの後ろに配置） */}
+        <div className={styles.waterBackOverlay} aria-hidden="true" />
+
         {/* 最上部固定バー：左（ユーザー名）・中央（現在地）・右（タイマー稼働時間） */}
         <header className={styles.topHeaderBar}>
           <div className={styles.topUserName}>{user.userName}</div>
@@ -201,9 +203,6 @@ export default function HomeMain() {
             </div>
           </div>
         </div>
-
-        {/* 水槽用：背景側の水濁りレイヤー（太陽や背景に濁りをかける） */}
-        <div className={styles.waterBackOverlay} aria-hidden="true" />
 
         {/* 左上：天気（雲・雨・雪） */}
         <div className={styles.weatherZone}>
@@ -294,9 +293,6 @@ export default function HomeMain() {
           <div className={styles.stemLine} aria-hidden="true" />
         </div>
 
-        {/* 水槽用：手前側の水濁りレイヤー（生き物の手前に薄く霞みをかける） */}
-        <div className={styles.waterFrontOverlay} aria-hidden="true" />
-
         {/* 右側：縦並びメニューバー */}
         <nav className={styles.rightMenuBar} aria-label="メインメニュー">
           <button
@@ -356,10 +352,14 @@ export default function HomeMain() {
           </button>
         </nav>
 
-        {/* 下部中央：水分補給ボタン */}
+        {/* 下部中央：水分補給ボタン（花テーマ時のみ葉っぱを表示） */}
         <div className={styles.bottomWateringZone}>
-          <div className={styles.leafLeft} aria-hidden="true" />
-          <div className={styles.leafRight} aria-hidden="true" />
+          {Number(useUI.UIId) === 1 && (
+            <>
+              <div className={styles.leafLeft} aria-hidden="true" />
+              <div className={styles.leafRight} aria-hidden="true" />
+            </>
+          )}
           <button
             type="button"
             onClick={() => setNowScreen("DRINKING")}

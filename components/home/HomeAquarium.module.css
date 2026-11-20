@@ -545,16 +545,10 @@
   z-index: 1;
 }
 
-.leafLeft {
-  left: 26px;
-  border-radius: 40px 0 40px 0;
-  transform: rotate(-22deg);
-}
-
+/* 水槽では花の葉っぱを非表示にする */
+.leafLeft,
 .leafRight {
-  right: 26px;
-  border-radius: 0 40px 0 40px;
-  transform: rotate(22deg);
+  display: none;
 }
 
 .wateringButton {
@@ -603,105 +597,51 @@
 }
 
 /* 濁りオーバーレイの共通設定 */
-.waterBackOverlay,
-.waterFrontOverlay {
+/* 背景専用の水濁りレイヤー（UIや文字より後ろに配置） */
+.waterBackOverlay {
   position: absolute;
   inset: 0;
+  z-index: 1;
   pointer-events: none;
-  transition: background 0.8s ease, backdrop-filter 0.8s ease;
+  transition: background-color 0.5s ease;
 }
 
-/* 背景側（太陽の光や水中背景を濁らせる） */
-.waterBackOverlay {
-  z-index: 8;
-}
-
-/* 手前側（生き物の手前に薄い霞みをかける） */
-.waterFrontOverlay {
-  z-index: 16;
-}
-
-/* 段階0：透き通った綺麗な水 */
+/* 進捗段階（0〜4）に応じた背景の濁り変化 */
 .progress0 .waterBackOverlay {
-  background: transparent;
-  backdrop-filter: none;
-}
-.progress0 .waterFrontOverlay {
-  background: transparent;
-  backdrop-filter: none;
+  background-color: rgba(14, 116, 144, 0);
 }
 
-/* 段階1：わずかに白っぽく濁り始め */
 .progress1 .waterBackOverlay {
-  background: linear-gradient(
-    180deg,
-    rgba(210, 235, 225, 0.14) 0%,
-    rgba(165, 210, 190, 0.24) 100%
-  );
-  backdrop-filter: blur(0.4px);
-}
-.progress1 .waterFrontOverlay {
-  background: rgba(200, 230, 218, 0.08);
+  background-color: rgba(77, 124, 15, 0.16);
 }
 
-/* 段階2：やや濁り（水色がくすみ始める） */
 .progress2 .waterBackOverlay {
-  background: linear-gradient(
-    180deg,
-    rgba(155, 195, 155, 0.28) 0%,
-    rgba(115, 165, 125, 0.42) 100%
-  );
-  backdrop-filter: blur(1px);
-}
-.progress2 .waterFrontOverlay {
-  background: rgba(145, 185, 145, 0.16);
-  backdrop-filter: blur(0.4px);
+  background-color: rgba(63, 98, 18, 0.32);
 }
 
-/* 段階3：かなり濁り（アオコ・苔が繁殖したような緑濁り） */
-.progress3.daySky {
-  background: linear-gradient(
-    180deg,
-    #84a98c 0%,
-    #52796f 35%,
-    #354f52 85%,
-    #78716c 94%,
-    #57534e 100%
-  );
-}
 .progress3 .waterBackOverlay {
-  background: linear-gradient(
-    180deg,
-    rgba(110, 145, 85, 0.46) 0%,
-    rgba(75, 110, 60, 0.62) 100%
-  );
-  backdrop-filter: blur(2px);
-}
-.progress3 .waterFrontOverlay {
-  background: rgba(95, 130, 75, 0.28);
-  backdrop-filter: blur(0.8px);
+  background-color: rgba(54, 83, 20, 0.48);
 }
 
-/* 段階4：強く濁り（濃い茶緑〜深緑の濁り水） */
-.progress4.daySky {
-  background: linear-gradient(
-    180deg,
-    #6b705c 0%,
-    #4a573e 35%,
-    #2f3e28 85%,
-    #57534e 94%,
-    #44403c 100%
-  );
-}
 .progress4 .waterBackOverlay {
-  background: linear-gradient(
-    180deg,
-    rgba(82, 102, 52, 0.64) 0%,
-    rgba(48, 66, 30, 0.8) 100%
-  );
-  backdrop-filter: blur(3.2px);
+  background-color: rgba(45, 68, 22, 0.64);
 }
-.progress4 .waterFrontOverlay {
-  background: rgba(68, 88, 42, 0.42);
-  backdrop-filter: blur(1.4px);
+
+/* 手前側オーバーレイは使用しない */
+.waterFrontOverlay {
+  display: none;
+}
+
+/* 文字・UI要素はすべて濁りレイヤー（z-index: 1）より手前に配置 */
+.topHeaderBar {
+  z-index: 20;
+}
+
+.celestialBody,
+.weatherZone,
+.timerZone,
+.centerFlowerZone,
+.rightMenuBar,
+.bottomWateringZone {
+  z-index: 10;
 }
