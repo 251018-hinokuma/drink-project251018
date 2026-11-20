@@ -1,21 +1,21 @@
 "use client";
 
 import { useDrink } from "@/context/DrinkContext";
-import {useState} from "react";
 import Header from "@/components/header/Header";
-export default function MydrinkingListMain() {
-  const { user,setUser, setNowScreen,useMydrinkId } = useDrink();
+import styles from "./MydrinkingListMain.module.css";
 
+export default function MydrinkingListMain() {
+  const { user, setUser, setNowScreen, useMydrinkId } = useDrink();
 
   const handleSubmit = async (drinkId) => {
     if (!confirm("このマイドリンクを削除しますか？")) return;
-  
-  try{
-    const payload = {
+
+    try {
+      const payload = {
         deleteuserId: user?.userId || 1,
         deletedrinkId: drinkId || 1,
       };
-    const response = await fetch("/api//drinking/mydrink", {
+      const response = await fetch("/api//drinking/mydrink", {
         method: "DELETE",
         headers: {
           Accept: "application/json",
@@ -23,7 +23,7 @@ export default function MydrinkingListMain() {
         },
         body: JSON.stringify(payload),
       });
-    const contentType = response.headers.get("content-type");
+      const contentType = response.headers.get("content-type");
       if (!contentType || !contentType.includes("application/json")) {
         const errorText = await response.text();
         console.error("サーバーエラー詳細:", errorText);
@@ -48,54 +48,78 @@ export default function MydrinkingListMain() {
       console.error("送信エラー:", error);
       alert("送信に失敗しました");
     } finally {
-     
     }
-  }
+  };
 
   // user が null (データ取得中など) の場合の保護
   if (!user) {
     return (
-      <div className="p-4">
-        <p>ユーザー情報を読み込み中...</p>
+      <div className={styles.wrapper}>
+        <div className={styles.loadingScreen}>ユーザー情報を読み込み中...</div>
       </div>
     );
   }
 
   return (
-    <div>
-      <Header/>
-       <button onClick={() => setNowScreen("HOMEMAIN")}>
-        ホーム
-      </button>
-      <h2>マイドリンク一覧</h2>
+    <div className={styles.wrapper}>
+      <main className={styles.stage}>
+        <Header />
 
-      <div>
-        {/* オプショナルチェイニング user?.drinkInfo を使用し、三項演算子で分岐 */}
-        {user?.drinkInfo && user.drinkInfo.length > 0 ? (
-          user.drinkInfo.map((d) => {
-            const isDrink=Number(d.drinkId)===Number(useMydrinkId)
-            return(
-            <div key={d.drinkId} style={{ border: "1px solid #ccc", margin: "8px 0", padding: "8px" }}>
-              <div>ドリンク名: {d.drinkName}</div>
-              <div>内容量: {d.drinkValue} ml</div>
-              <div>カロリー: {d.drinkCalorie} kcal</div>
+        <div className={styles.content}>
+          <div className={styles.panelGroup}>
+            {/* マイドリンク一覧枠 */}
+            <section className={styles.carouselBox} aria-label="マイドリンク一覧">
+              {/* 左上角の「＋」追加ボタン */}
               <button
-              onClick={()=>{
-                handleSubmit(d.drinkId);
-
-              }}>
-                削除
+                type="button"
+                className={styles.addButton}
+                onClick={() => setNowScreen("ADDMYDRINKMAIN")}
+                aria-label="マイドリンクを追加"
+                title="マイドリンクを追加"
+              >
+                +
               </button>
-            </div>
-          )})
-        ) : (
-          <p>登録されているマイドリンクはありません</p>
-        )}
-      </div>
 
-      <div style={{ marginTop: "16px" }}>
-        <button onClick={() => setNowScreen("ADDMYDRINKMAIN")}>追加</button>
-      </div>
+              {/* 横スクロールカードリスト */}
+              {user?.drinkInfo && user.drinkInfo.length > 0 ? (
+                <div className={styles.cardList}>
+                  {user.drinkInfo.map((d) => {
+                    const isDrink = Number(d.drinkId) === Number(useMydrinkId);
+                    return (
+                      <div
+                        key={d.drinkId}
+                        className={`${styles.drinkCard} ${
+                          isDrink ? styles.drinkCardActive : ""
+                        }`}
+                      >
+                        <div className={styles.drinkName}>{d.drinkName}</div>
+                        <div className={styles.drinkSpecs}>
+                          <span>{d.drinkValue} ml</span>
+                          <span>{d.drinkCalorie} kcal</span>
+                        </div>
+                        <button
+                          type="button"
+                          className={styles.deleteButton}
+                          onClick={() => {
+                            handleSubmit(d.drinkId);
+                          }}
+                        >
+                          削除
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={styles.emptyState}>
+                  <p>登録されているマイドリンクはありません</p>
+                  <span>左上の「+」から追加できます</span>
+                </div>
+              )}
+            </section>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

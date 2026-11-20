@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { useDrink } from "@/context/DrinkContext";
+import Header from "@/components/header/Header";
+import styles from "./SettingMain.module.css";
 
 export default function SettingMain() {
-  const { user, updateUser, setNowScreen ,setDrinkTimer} = useDrink();
+  const { user, updateUser, setDrinkTimer } = useDrink();
 
   const [temperSetting, setTemperSetting] = useState(true);
   const [timerMinutes, setTimerMinutes] = useState(20);
@@ -27,7 +29,7 @@ export default function SettingMain() {
     const yyyy = today.getFullYear();
     const mm = String(today.getMonth() + 1).padStart(2, "0");
     const dd = String(today.getDate()).padStart(2, "0");
-    
+
     // Zではなく +09:00 を付与して日本時間として保存
     return `${yyyy}-${mm}-${dd}T${timeStr}:00+09:00`;
   };
@@ -56,12 +58,11 @@ export default function SettingMain() {
   // タイマー時間（分）の変更
   const handleChangeTimer = async () => {
     if (timerMinutes !== "" && !isNaN(Number(timerMinutes))) {
-      
       await updateUser({
         ...user,
         userTimer: Number(timerMinutes),
       });
-      setDrinkTimer(timerMinutes*60);
+      setDrinkTimer(timerMinutes * 60);
       alert("タイマー時間を変更しました");
     }
   };
@@ -73,7 +74,7 @@ export default function SettingMain() {
       const jstString = createJSTDateString(timerStart);
       await updateUser({
         ...user,
-        userStartTimer: jstString, // Z無しの +09:00 文字列で保存
+        userStartTimer: jstString,
       });
       alert("開始時刻を変更しました");
     } else {
@@ -88,7 +89,7 @@ export default function SettingMain() {
       const jstString = createJSTDateString(timerEnd);
       await updateUser({
         ...user,
-        userEndTimer: jstString, // Z無しの +09:00 文字列で保存
+        userEndTimer: jstString,
       });
       alert("終了時刻を変更しました");
     } else {
@@ -97,64 +98,134 @@ export default function SettingMain() {
   };
 
   if (!user) {
-    return <div>ユーザー情報を読み込み中...</div>;
+    return (
+      <div className={styles.wrapper}>
+        <div className={styles.loadingScreen}>ユーザー情報を読み込み中...</div>
+      </div>
+    );
   }
 
   return (
-    <div>
-      <button onClick={() => setNowScreen("HOMEMAIN")}>ホーム</button>
-      <h2>設定画面</h2>
+    <div className={styles.wrapper}>
+      <main className={styles.stage}>
+        <Header />
 
-      {/* 温度湿度によるタイマーの連動切り替え */}
-      <div style={{ marginBottom: "20px" }}>
-        <p>温度湿度によるタイマーの変化</p>
-        <button onClick={handleToggleTemper}>
-          {temperSetting ? "ON" : "OFF"}
-        </button>
-      </div>
+        <div className={styles.content}>
+          {/* 1. 温度湿度によるタイマーの変化 ＋ トグルスイッチ */}
+          <section className={styles.temperRow}>
+            <div className={styles.temperLabelBox}>
+              温度湿度による
+              <br />
+              タイマーの変化
+            </div>
 
-      {/* タイマー時間（分）の変更 */}
-      <div style={{ marginBottom: "20px" }}>
-        <p>タイマーの時間（分ごと）</p>
-        <input
-          type="number"
-          value={timerMinutes}
-          onChange={(e) => setTimerMinutes(e.target.value)}
-          style={{ width: "80px", padding: "4px" }}
-        />
-        <span> 分 </span>
-        <button onClick={handleChangeTimer}>変更</button>
-      </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={temperSetting}
+              aria-label="温度湿度によるタイマーの変化切り替え"
+              onClick={handleToggleTemper}
+              className={`${styles.switchTrack} ${
+                temperSetting ? styles.switchOn : styles.switchOff
+              }`}
+            >
+              <span className={styles.switchStateText}>
+                {temperSetting ? "ON" : "OFF"}
+              </span>
+              <span className={styles.switchKnob} />
+            </button>
+          </section>
 
-      {/* タイマーの開始時刻 */}
-      <div style={{ marginBottom: "12px" }}>
-        <label style={{ display: "block", marginBottom: "4px" }}>
-          タイマーの開始時刻:
-        </label>
-        <input
-          type="time"
-          value={timerStart}
-          onChange={(e) => setTimerStart(e.target.value)}
-        />
-        <button onClick={handleChangeTimerStart} style={{ marginLeft: "8px" }}>
-          変更
-        </button>
-      </div>
+          {/* 2. タイマーの時間（上下連結ボックス ＋ 変更ボタン） */}
+          <section className={styles.timerIntervalSection}>
+            <div className={styles.stackedBox}>
+              <label htmlFor="setting-timer-min" className={styles.stackedHeader}>
+                タイマーの時間
+              </label>
+              <div className={styles.stackedInputRow}>
+                <input
+                  id="setting-timer-min"
+                  type="number"
+                  min="1"
+                  inputMode="numeric"
+                  value={timerMinutes}
+                  onChange={(e) => setTimerMinutes(e.target.value)}
+                  className={styles.numberInput}
+                />
+                <span className={styles.unitText}>分</span>
+              </div>
+            </div>
 
-      {/* タイマーの終了時刻 */}
-      <div>
-        <label style={{ display: "block", marginBottom: "4px" }}>
-          タイマーの終了時刻:
-        </label>
-        <input
-          type="time"
-          value={timerEnd}
-          onChange={(e) => setTimerEnd(e.target.value)}
-        />
-        <button onClick={handleChangeTimerEnd} style={{ marginLeft: "8px" }}>
-          変更
-        </button>
-      </div>
+            <button
+              type="button"
+              onClick={handleChangeTimer}
+              className={styles.ovalButton}
+            >
+              変更
+            </button>
+          </section>
+
+          {/* 3. タイマーの開始時刻 〜 タイマーの終了時刻 ＋ 各変更ボタン */}
+          <section className={styles.timeRangeSection}>
+            {/* 左：開始時刻 */}
+            <div className={styles.timeColumn}>
+              <div className={styles.timeBox}>
+                <label htmlFor="setting-timer-start" className={styles.timeBoxLabel}>
+                  タイマーの開始
+                  <br />
+                  時刻
+                </label>
+                <input
+                  id="setting-timer-start"
+                  type="time"
+                  value={timerStart}
+                  onChange={(e) => setTimerStart(e.target.value)}
+                  className={styles.timeInput}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleChangeTimerStart}
+                className={styles.ovalButtonSmall}
+              >
+                変更
+              </button>
+            </div>
+
+            {/* 中央：「〜」ボックス */}
+            <div className={styles.tildeBox} aria-hidden="true">
+              〜
+            </div>
+
+            {/* 右：終了時刻 */}
+            <div className={styles.timeColumn}>
+              <div className={styles.timeBox}>
+                <label htmlFor="setting-timer-end" className={styles.timeBoxLabel}>
+                  タイマーの終了
+                  <br />
+                  時刻
+                </label>
+                <input
+                  id="setting-timer-end"
+                  type="time"
+                  value={timerEnd}
+                  onChange={(e) => setTimerEnd(e.target.value)}
+                  className={styles.timeInput}
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={handleChangeTimerEnd}
+                className={styles.ovalButtonSmall}
+              >
+                変更
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
     </div>
   );
 }

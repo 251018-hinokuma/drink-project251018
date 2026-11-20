@@ -2,6 +2,8 @@
 
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
+import styles from "./MydrinkingMain.module.css";
+
 export default function MydrinkingMain() {
   const {
     user,
@@ -12,79 +14,102 @@ export default function MydrinkingMain() {
     setUseMydrink,
   } = useDrink();
 
-  // user が null (データ取得中など) の場合の保護
   if (!user) {
     return (
-      <div className="p-4">
-        <p>ユーザー情報を読み込み中...</p>
+      <div className={styles.wrapper}>
+        <div className={styles.loadingScreen}>ユーザー情報を読み込み中...</div>
       </div>
     );
   }
 
+  const handleSelectDrink = (drink, currentId) => {
+    setUseMydrinkInfo(drink);
+    setUseMydrinkId(currentId);
+    if (setUseMydrink) setUseMydrink(true);
+    alert(`${drink.drinkName} を選択しました`);
+  };
+
   return (
-    <div>
-      <Header/>
-      <button onClick={() => setNowScreen("HOMEMAIN")}>ホーム</button>
-      <h2>マイドリンク一覧</h2>
+    <div className={styles.wrapper}>
+      <main className={styles.stage}>
+        <Header />
 
-      <div>
-        {user?.drinkInfo && user.drinkInfo.length > 0 ? (
-          user.drinkInfo.map((d) => {
-            // ★ ObjectId(文字列) でも安全に比較できるように String() で統一
-            const currentId = d.drinkId || d._id;
-            const isDrink =
-              useMydrinkId && String(currentId) === String(useMydrinkId);
-
-            return (
-              <div
-                key={currentId}
-                style={{
-                  border: isDrink ? "2px solid #0070f3" : "1px solid #ccc",
-                  backgroundColor: isDrink ? "#f0f7ff" : "transparent",
-                  margin: "8px 0",
-                  padding: "8px",
-                  borderRadius: "4px",
-                }}
+        <div className={styles.content}>
+          <div className={styles.panelGroup}>
+            {/* マイドリンク一覧枠 */}
+            <section className={styles.carouselBox} aria-label="マイドリンク一覧">
+              {/* 左上角の「＋」マイドリンク追加ボタン */}
+              <button
+                type="button"
+                className={styles.addButton}
+                onClick={() => setNowScreen("ADDMYDRINKMAIN")}
+                aria-label="マイドリンクを追加する"
+                title="マイドリンクを追加する"
               >
-                <div>ドリンク名: {d.drinkName}</div>
-                <div>内容量: {d.drinkValue} ml</div>
-                <div>カロリー: {d.drinkCalorie} kcal</div>
-                <button
-                  onClick={() => {
-                    setUseMydrinkInfo(d);
-                    setUseMydrinkId(currentId);
-                    if (setUseMydrink) setUseMydrink(true);
-                    alert(`${d.drinkName} を選択しました`);
-                  }}
-                  disabled={isDrink}
-                >
-                  {isDrink ? "選択中" : "選択"}
-                </button>
-              </div>
-            );
-          })
-        ) : (
-          <p>登録されているマイドリンクはありません</p>
-        )}
-      </div>
+                +
+              </button>
 
-      <div style={{ marginTop: "16px" }}>
-        <button onClick={() => setNowScreen("ADDMYDRINKMAIN")}>
-          マイドリンクを追加
-        </button>
-        <button
-          onClick={() => setNowScreen("NOTPHOTOMAIN")}
-          style={{ marginLeft: "8px" }}
-        >
-          手入力
-        </button>
-        <button
-          onClick={() => setNowScreen("PHOTOMAIN")}
-          style={{ marginLeft: "8px" }}
-        >
-          写真入力
-        </button>
-      </div>
+              {/* 横スクロールカードリスト */}
+              {user?.drinkInfo && user.drinkInfo.length > 0 ? (
+                <div className={styles.cardList}>
+                  {user.drinkInfo.map((d) => {
+                    const currentId = d.drinkId || d._id;
+                    const isSelected =
+                      useMydrinkId && String(currentId) === String(useMydrinkId);
+
+                    return (
+                      <button
+                        type="button"
+                        key={currentId}
+                        onClick={() => handleSelectDrink(d, currentId)}
+                        className={`${styles.drinkCard} ${
+                          isSelected ? styles.drinkCardSelected : ""
+                        }`}
+                      >
+                        <div className={styles.drinkName}>{d.drinkName}</div>
+                        <div className={styles.drinkSpecs}>
+                          <span className={styles.drinkvalue}>容量　　{d.drinkValue} ml</span>
+                          <span className={styles.drinkcalorie}>カロリー　{d.drinkCalorie} kcal</span>
+                        </div>
+                        <span
+                          className={`${styles.statusBadge} ${
+                            isSelected ? styles.statusBadgeSelected : ""
+                          }`}
+                        >
+                          {isSelected ? "選択中" : "選択"}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className={styles.emptyState}>
+                  <p>登録されているマイドリンクはありません</p>
+                  <span>左上の「+」から追加できます</span>
+                </div>
+              )}
+            </section>
+
+            {/* 下部2分割ボタン：手動入力 / 写真入力 */}
+            <div className={styles.inputModeRow}>
+              <button
+                type="button"
+                className={styles.modeButton}
+                onClick={() => setNowScreen("NOTPHOTOMAIN")}
+              >
+                手動入力
+              </button>
+              <button
+                type="button"
+                className={styles.modeButton}
+                onClick={() => setNowScreen("PHOTOMAIN")}
+              >
+                写真入力
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
   );
 }

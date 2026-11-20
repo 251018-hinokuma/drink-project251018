@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
+import styles from "./PhotoMain.module.css";
 
 export default function PhotoMain() {
   const [imageBefore, setImageBefore] = useState(null);
@@ -53,8 +54,13 @@ export default function PhotoMain() {
     });
   };
 
-  // ★ 「飲む前(左)」と「飲んだ後(右)」を1枚の画像に結合してAIの読み込みを高速化
-  const mergeImagesSideBySide = (beforeSrc, afterSrc, targetHeight = 440, quality = 0.55) => {
+  // 「飲む前(左)」と「飲んだ後(右)」を1枚の画像に結合してAIの読み込みを高速化
+  const mergeImagesSideBySide = (
+    beforeSrc,
+    afterSrc,
+    targetHeight = 440,
+    quality = 0.55
+  ) => {
     return new Promise((resolve) => {
       const img1 = new Image();
       const img2 = new Image();
@@ -101,12 +107,13 @@ export default function PhotoMain() {
       return;
     }
 
+    if (isSubmitting) return;
+
     setIsSubmitting(true);
     setProgress(5);
     setStatus("比較画像を作成中...");
 
     try {
-      // ★ 2枚を左右1枚に結合してから送信
       const mergedImage = await mergeImagesSideBySide(imageBefore, imageAfter);
 
       setProgress(10);
@@ -183,107 +190,135 @@ export default function PhotoMain() {
     }
   };
 
+  const displayDrinkName = useMydrink
+    ? useMydrinkInfo?.drinkName || "マイドリンク"
+    : "市販飲料";
+
   return (
-    <div>
-      <Header />
-      <button onClick={() => setNowScreen("HOMEMAIN")} disabled={isSubmitting}>
-        ホーム
-      </button>
+    <div className={styles.wrapper}>
+      <main className={styles.stage}>
+        <Header />
 
-      <form onSubmit={handleSubmit}>
-        <div>
-          <p style={{ fontWeight: "bold", margin: "8px 0" }}>
-            {useMydrink ? `選択中: ${useMydrinkInfo?.drinkName}` : "一般飲料解析"}
-          </p>
+        <div className={styles.content}>
+          <form onSubmit={handleSubmit} className={styles.formGroup}>
+            {/* 1. 飲料名ボックス */}
+            <div className={styles.drinkNameBox}>{displayDrinkName}</div>
 
-          <label>飲む前の写真：</label>
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(e) => handleFileChange(e, setImageBefore)}
-            disabled={isSubmitting}
-            required
-          />
-          <div>
-            {imageBefore && (
-              <img
-                src={imageBefore}
-                alt="飲む前プレビュー"
-                style={{ maxWidth: "200px", marginTop: "8px" }}
-              />
-            )}
-          </div>
-        </div>
+            {/* 2. 左右2分割の写真選択ボックス */}
+            <div className={styles.photoSplitBox}>
+              {/* 左：飲む前の写真 */}
+              <label
+                className={`${styles.photoSlot} ${styles.photoSlotLeft} ${
+                  isSubmitting ? styles.photoSlotDisabled : ""
+                }`}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => handleFileChange(e, setImageBefore)}
+                  disabled={isSubmitting}
+                  className={styles.hiddenInput}
+                />
+                {imageBefore ? (
+                  <>
+                    <img
+                      src={imageBefore}
+                      alt="飲む前プレビュー"
+                      className={styles.previewImg}
+                    />
+                    <span className={styles.previewBadge}>飲む前</span>
+                  </>
+                ) : (
+                  <span className={styles.photoPlaceholder}>
+                    飲む前の
+                    <br />
+                    写真
+                  </span>
+                )}
+              </label>
 
-        <div style={{ marginTop: "16px" }}>
-          <label>飲んだ後の写真：</label>
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={(e) => handleFileChange(e, setImageAfter)}
-            disabled={isSubmitting}
-            required
-          />
-          <div>
-            {imageAfter && (
-              <img
-                src={imageAfter}
-                alt="飲んだ後プレビュー"
-                style={{ maxWidth: "200px", marginTop: "8px" }}
-              />
-            )}
-          </div>
-        </div>
-
-        <div style={{ marginTop: "16px" }}>
-          <label>手入力（任意）：</label>
-          <input
-            type="number"
-            value={customValue}
-            onChange={(e) => setCustomValue(e.target.value)}
-            placeholder="自分で飲んだ量を指定したい場合に入力(ml)"
-            disabled={isSubmitting}
-            style={{ width: "100%", padding: "8px", marginTop: "8px" }}
-          />
-        </div>
-
-        {isSubmitting && (
-          <div style={{ marginTop: "16px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "4px" }}>
-              <span>{status}</span>
-              <span>{progress}%</span>
+              {/* 右：飲んだ後の写真 */}
+              <label
+                className={`${styles.photoSlot} ${
+                  isSubmitting ? styles.photoSlotDisabled : ""
+                }`}
+              >
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => handleFileChange(e, setImageAfter)}
+                  disabled={isSubmitting}
+                  className={styles.hiddenInput}
+                />
+                {imageAfter ? (
+                  <>
+                    <img
+                      src={imageAfter}
+                      alt="飲んだ後プレビュー"
+                      className={styles.previewImg}
+                    />
+                    <span className={styles.previewBadge}>飲んだ後</span>
+                  </>
+                ) : (
+                  <span className={styles.photoPlaceholder}>
+                    飲んだ後
+                    <br />
+                    の写真
+                  </span>
+                )}
+              </label>
             </div>
-            <div
-              style={{
-                width: "100%",
-                height: "16px",
-                backgroundColor: "#e5e7eb",
-                borderRadius: "9999px",
-                overflow: "hidden",
-              }}
+
+            {/* 3. 飲んだ量ボックス（任意手入力） */}
+            <div className={styles.amountBox}>
+              <label htmlFor="photo-custom-value" className={styles.amountLabel}>
+                飲んだ量
+              </label>
+              <div className={styles.inputRow}>
+                <input
+                  id="photo-custom-value"
+                  type="number"
+                  min="1"
+                  inputMode="numeric"
+                  value={customValue}
+                  onChange={(e) => setCustomValue(e.target.value)}
+                  placeholder="任意"
+                  disabled={isSubmitting}
+                  className={styles.amountInput}
+                />
+                <span className={styles.unitText}>ml</span>
+              </div>
+            </div>
+
+            {/* 解析中の進捗バー */}
+            {isSubmitting && (
+              <div className={styles.progressSection}>
+                <div className={styles.progressHeader}>
+                  <span>{status}</span>
+                  <span>{progress}%</span>
+                </div>
+                <div className={styles.progressTrack}>
+                  <div
+                    className={styles.progressFill}
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* 4. 楕円形の送信ボタン */}
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={styles.submitButton}
             >
-              <div
-                style={{
-                  width: `${progress}%`,
-                  height: "100%",
-                  backgroundColor: "#2563eb",
-                  transition: "width 0.3s ease",
-                }}
-              />
-            </div>
-          </div>
-        )}
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          style={{ marginTop: "16px", padding: "8px 16px" }}
-        >
-          {isSubmitting ? "解析中..." : "送信して解析"}
-        </button>
-      </form>
+              {isSubmitting ? "解析中..." : "送信"}
+            </button>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

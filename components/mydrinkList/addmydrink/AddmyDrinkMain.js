@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
+import styles from "./AddmyDrinkMain.module.css";
+
 export default function AddmyDrinkMain() {
   const { user, setUser, setNowScreen } = useDrink();
 
@@ -58,50 +60,79 @@ export default function AddmyDrinkMain() {
   };
 
   return (
-    <div>
-      <Header/>
-        <button onClick={() => setNowScreen("HOMEMAIN")}>
-        ホーム
-      </button>
-      <h2>マイドリンク追加</h2>
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: "12px" }}>
-          <label>ドリンク名: </label>
-          <input
-            type="text"
-            name="drinkName"
-            value={drinkName}
-            onChange={(e) => setDrinkName(e.target.value)}
-            placeholder="例: マイボトルのお茶"
-            required
-          />
-        </div>
+    <div className={styles.wrapper}>
+      <main className={styles.stage}>
+        <Header />
 
-        <div style={{ marginBottom: "12px" }}>
-          <label>水筒などの容量 (ml): </label>
-          <input
-            type="number"
-            name="drinkValue"
-            value={drinkValue}
-            onChange={(e) => setDrinkValue(e.target.value)}
-            placeholder="例: 500"
-            required
-          />
-        </div>
+        <div className={styles.content}>
+          <form onSubmit={handleSubmit} className={styles.formGroup}>
+            {/* 1. 飲料名ボックス */}
+            <div className={styles.nameBox}>
+              <label htmlFor="add-drink-name" className={styles.boxLabel}>
+                飲料名
+              </label>
+              <input
+                id="add-drink-name"
+                type="text"
+                name="drinkName"
+                value={drinkName}
+                onChange={(e) => setDrinkName(e.target.value)}
+                placeholder="例: マイボトルのお茶"
+                className={styles.textInput}
+                required
+              />
+            </div>
 
-        <div style={{ marginBottom: "12px" }}>
-          <label>100mLごとのカロリー (kcal): </label>
-          <input
-            type="number"
-            name="drinkCalorie"
-            value={drinkCalorie}
-            onChange={(e) => setDrinkCalorie(e.target.value)}
-            placeholder="例: 0"
-          />
-        </div>
+            {/* 2. 内容量ボックス */}
+            <div className={styles.numberBox}>
+              <label htmlFor="add-drink-value" className={styles.boxLabel}>
+                内容量
+              </label>
+              <div className={styles.inputRow}>
+                <input
+                  id="add-drink-value"
+                  type="number"
+                  name="drinkValue"
+                  min="1"
+                  inputMode="numeric"
+                  value={drinkValue}
+                  onChange={(e) => setDrinkValue(e.target.value)}
+                  placeholder="500"
+                  className={styles.numberInput}
+                  required
+                />
+                <span className={styles.unitText}>ml</span>
+              </div>
+            </div>
 
-        <button type="submit">追加</button>
-      </form>
+            {/* 3. 100mlごとのカロリーボックス */}
+            <div className={styles.numberBox}>
+              <label htmlFor="add-drink-calorie" className={styles.boxLabel}>
+                100mlごとのカロリー
+              </label>
+              <div className={styles.inputRow}>
+                <input
+                  id="add-drink-calorie"
+                  type="number"
+                  name="drinkCalorie"
+                  min="0"
+                  inputMode="numeric"
+                  value={drinkCalorie}
+                  onChange={(e) => setDrinkCalorie(e.target.value)}
+                  placeholder="0"
+                  className={styles.numberInput}
+                />
+                <span className={styles.unitText}>kcal</span>
+              </div>
+            </div>
+
+            {/* 4. 楕円形の追加ボタン */}
+            <button type="submit" className={styles.submitButton}>
+              追加
+            </button>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }

@@ -1,0 +1,322 @@
+.wrapper {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #1e293b;
+}
+
+.loadingScreen {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  color: #334155;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* スマホ縦画面ベース（他画面と統一） */
+.stage {
+  position: relative;
+  width: 100%;
+  max-width: 430px;
+  height: 100dvh;
+  min-height: 720px;
+  max-height: 920px;
+  background-color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+}
+
+/* メイン領域 */
+.content {
+  flex: 1;
+  padding: 44px 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  overflow-y: auto;
+}
+
+/* --- 1. 温度湿度によるタイマーの変化 ＋ トグルスイッチ --- */
+.temperRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 12px;
+}
+
+.temperLabelBox {
+  width: 184px;
+  height: 54px;
+  background-color: #ffffff;
+  border: 1.5px solid #1e293b;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: #0f172a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.switchTrack {
+  position: relative;
+  width: 68px;
+  height: 54px;
+  margin-left: -1.5px;
+  border: 1.5px solid #1e293b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  transition: background-color 0.2s ease;
+}
+
+.switchOn {
+  background-color: #bae6fd;
+  justify-content: flex-start;
+}
+
+.switchOff {
+  background-color: #e2e8f0;
+  justify-content: flex-end;
+}
+
+.switchStateText {
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f172a;
+  user-select: none;
+}
+
+.switchKnob {
+  position: absolute;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  border: 1.5px solid #1e293b;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.16);
+  transition: transform 0.22s ease, background-color 0.22s ease;
+}
+
+.switchOn .switchKnob {
+  transform: translate(22px, -50%);
+  background-color: #ffffff;
+}
+
+.switchOff .switchKnob {
+  transform: translate(-18px, -50%);
+  background-color: #f8fafc;
+}
+
+/* --- 2. タイマーの時間（上下連結ボックス ＋ 変更ボタン） --- */
+.timerIntervalSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.stackedBox {
+  width: 236px;
+  background-color: #ffffff;
+  border: 1.5px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+}
+
+.stackedHeader {
+  height: 36px;
+  border-bottom: 1.5px solid #1e293b;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.stackedInputRow {
+  height: 44px;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 4px;
+  background-color: #ffffff;
+}
+
+.stackedInputRow:focus-within {
+  background-color: #f8fafc;
+}
+
+.numberInput {
+  width: 84px;
+  border: none;
+  border-bottom: 1.5px solid #94a3b8;
+  background: transparent;
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  outline: none;
+}
+
+.numberInput:focus {
+  border-bottom-color: #0284c7;
+}
+
+/* 数値入力のスピンボタン非表示 */
+.numberInput::-webkit-outer-spin-button,
+.numberInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.numberInput[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.unitText {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+}
+
+/* 楕円形の変更ボタン（中段） */
+.ovalButton {
+  width: 176px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1.5px solid #1e293b;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.ovalButton:hover {
+  background-color: #f1f5f9;
+}
+
+.ovalButton:active {
+  background-color: #e2e8f0;
+  transform: scale(0.97);
+}
+
+/* --- 3. タイマーの開始時刻 〜 タイマーの終了時刻 --- */
+.timeRangeSection {
+  width: 100%;
+  max-width: 380px;
+  display: grid;
+  grid-template-columns: 1fr 42px 1fr;
+  align-items: start;
+  gap: 6px;
+}
+
+.timeColumn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.timeBox {
+  width: 100%;
+  min-height: 76px;
+  padding: 6px 6px;
+  background-color: #ffffff;
+  border: 1.5px solid #1e293b;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.timeBox:focus-within {
+  background-color: #f8fafc;
+}
+
+.timeBoxLabel {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #0f172a;
+}
+
+.timeInput {
+  border: none;
+  border-bottom: 1.5px solid #94a3b8;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0f172a;
+  text-align: center;
+  outline: none;
+  padding: 1px 2px;
+  max-width: 100%;
+}
+
+.timeInput:focus {
+  border-bottom-color: #0284c7;
+}
+
+/* 中央の「〜」ボックス */
+.tildeBox {
+  width: 42px;
+  height: 76px;
+  background-color: #ffffff;
+  border: 1.5px solid #1e293b;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 楕円形の変更ボタン（左右下段） */
+.ovalButtonSmall {
+  width: 100%;
+  max-width: 148px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  color: #0f172a;
+  border: 1.5px solid #1e293b;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.ovalButtonSmall:hover {
+  background-color: #f1f5f9;
+}
+
+.ovalButtonSmall:active {
+  background-color: #e2e8f0;
+  transform: scale(0.97);
+}

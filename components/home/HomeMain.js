@@ -3,7 +3,13 @@
 import { useState, useEffect } from "react";
 import { useDrink } from "@/context/DrinkContext";
 import { getuseUI } from "@/lib/functions";
-import styles from "./HomeMain.module.css";
+import flowerStyles from "./HomeFlower.module.css";
+import aquariumStyles from "./HomeAquarium.module.css";
+
+const THEME_STYLES = {
+  1: flowerStyles,
+  2: aquariumStyles,
+};
 
 function isImageSource(value) {
   if (typeof value !== "string") return false;
@@ -29,7 +35,6 @@ export default function HomeMain() {
     timerCount,
     calculatedTimer,
     userProgress,
-    resetCount,
     weatherData,
     address,
     UI,
@@ -46,14 +51,25 @@ export default function HomeMain() {
   }, []);
 
   if (loading || !user) {
-    return <div className={styles.loadingScreen}>ユーザー情報を読み込み中...</div>;
+    return (
+      <div className={flowerStyles.loadingScreen}>
+        ユーザー情報を読み込み中...
+      </div>
+    );
   }
 
   const useUI = getuseUI(UI, user.userUI);
 
   if (!useUI) {
-    return <div className={styles.loadingScreen}>UI設定を読み込み中...</div>;
+    return (
+      <div className={flowerStyles.loadingScreen}>
+        UI設定を読み込み中...
+      </div>
+    );
   }
+
+  // 選択中の UIId に応じて適用する CSS を切り替え
+  const styles = THEME_STYLES[Number(useUI.UIId)] || flowerStyles;
 
   // --- 1. 現在時刻と昼夜・太陽/月の位置計算 ---
   const hours = now.getHours();
@@ -66,8 +82,8 @@ export default function HomeMain() {
     : (hours >= 18 ? hours - 18 : hours + 6) + minutes / 60;
   const cycleRatio = Math.min(1, Math.max(0, cycleHours / 12));
 
-  const celestialLeft = 15 + cycleRatio * 70;
-  const celestialTop = 28 + Math.pow((cycleRatio - 0.5) * 2, 2) * 32;
+  const celestialLeft = 18 + cycleRatio * 64;
+  const celestialTop = -75 + Math.pow((cycleRatio - 0.5) * 2, 2) * 35;
 
   // --- 2. 天気に応じたUIパーツ取得 ---
   const getWeatherAsset = (weather) => {
@@ -99,7 +115,7 @@ export default function HomeMain() {
   const isSnowing = currentWeather === "雪";
   const isClearSky = currentWeather === "快晴";
 
-  // --- 3. 進捗段階に応じた花UI ---
+  // --- 3. 進捗段階に応じたメインUIと水の濁りレベル（0〜4） ---
   const progressAssets = [
     useUI.ProgressUI_0,
     useUI.ProgressUI_1,
@@ -107,8 +123,17 @@ export default function HomeMain() {
     useUI.ProgressUI_3,
     useUI.ProgressUI_4,
   ];
+  const progressLevelClasses = [
+    styles.progress0,
+    styles.progress1,
+    styles.progress2,
+    styles.progress3,
+    styles.progress4,
+  ];
+
   const safeProgressIndex = Math.min(4, Math.max(0, Number(userProgress) || 0));
   const currentFlowerAsset = progressAssets[safeProgressIndex];
+  const currentProgressClass = progressLevelClasses[safeProgressIndex] || "";
   const isWilted = safeProgressIndex >= 3;
 
   // --- 4. タイマーの％計算 ---
@@ -124,12 +149,20 @@ export default function HomeMain() {
   return (
     <div className={styles.wrapper}>
       <main
-        className={`${styles.stage} ${isDay ? styles.daySky : styles.nightSky}`}
+        className={`${styles.stage} ${isDay ? styles.daySky : styles.nightSky} ${currentProgressClass}`}
         style={stageBackgroundStyle}
       >
-        <div className={styles.topMetaBar}>
-          <span>{user.userName}</span>
-          <span>
+        {/* 最上部固定バー：左（ユーザー名）・中央（現在地）・右（タイマー稼働時間） */}
+        <header className={styles.topHeaderBar}>
+          <div className={styles.topUserName}>{user.userName}</div>
+
+          <div className={styles.topLocationBadge}>
+            {address?.state || address?.city
+              ? `${address.state || ""}${address.city || ""}`
+              : "現在地取得中..."}
+          </div>
+
+          <div className={styles.topTimerRange}>
             {user?.userStartTimer && user?.userEndTimer
               ? `${String(new Date(user.userStartTimer).getHours()).padStart(2, "0")}:${String(
                   new Date(user.userStartTimer).getMinutes()
@@ -139,8 +172,8 @@ export default function HomeMain() {
                   new Date(user.userEndTimer).getMinutes()
                 ).padStart(2, "0")}`
               : "時間未設定"}
-          </span>
-        </div>
+          </div>
+        </header>
 
         {/* 昼なら太陽 / 夜なら月 */}
         <div
@@ -169,14 +202,11 @@ export default function HomeMain() {
           </div>
         </div>
 
-        {/* 左上：現在地と天気 */}
-        <div className={styles.weatherZone}>
-          <div className={styles.locationBadge}>
-            {address?.state || address?.city
-              ? `${address.state || ""}${address.city || ""}`
-              : "現在地取得中..."}
-          </div>
+        {/* 水槽用：背景側の水濁りレイヤー（太陽や背景に濁りをかける） */}
+        <div className={styles.waterBackOverlay} aria-hidden="true" />
 
+        {/* 左上：天気（雲・雨・雪） */}
+        <div className={styles.weatherZone}>
           {!isClearSky && (
             <div className={styles.cloudBox}>
               <UIAsset
@@ -219,14 +249,11 @@ export default function HomeMain() {
           )}
         </div>
 
-        {/* 左中段：時計回り％タイマー */}
+        {/* 左中段：時計回り％ゲージ付きタイマー */}
         <div className={styles.timerZone}>
-          <button
-            type="button"
-            onClick={resetCount}
+          <div
             className={styles.timerRing}
             style={{ "--timer-deg": `${timerPercent * 3.6}deg` }}
-            title="クリックでタイマーリセット"
           >
             <div className={styles.timerInner}>
               <UIAsset
@@ -238,14 +265,18 @@ export default function HomeMain() {
               />
               <span className={styles.timerPercent}>{timerPercent}%</span>
             </div>
-          </button>
+          </div>
           <span className={styles.timerSubText}>
             {timerCount}/{calculatedTimer}秒
           </span>
         </div>
 
-        {/* 中央：花（進捗段階0〜4） */}
+        {/* 中央：メインキャラクター（花 / 水槽の生き物） */}
         <div className={styles.centerFlowerZone}>
+          <span className={styles.progressBadge}>
+            段階 {safeProgressIndex} {isWilted ? "（水質注意）" : ""}
+          </span>
+
           <div
             className={`${styles.flowerWrapper} ${
               isWilted ? styles.flowerWilted : styles.flowerHealthy
@@ -254,16 +285,17 @@ export default function HomeMain() {
             <UIAsset
               src={currentFlowerAsset}
               alt={`状態段階 ${safeProgressIndex}`}
-              fallbackText={`${useUI.UIName || "花"} ${safeProgressIndex + 1}段階`}
+              fallbackText={`${useUI.UIName || "UI"} ${safeProgressIndex + 1}段階`}
               className={styles.flowerFallback}
               imgClassName={styles.flowerImg}
             />
           </div>
-          <div className={styles.stemLine} />
-          <span className={styles.progressBadge}>
-            水分段階: {safeProgressIndex} {isWilted ? "（しおれ注意）" : ""}
-          </span>
+
+          <div className={styles.stemLine} aria-hidden="true" />
         </div>
+
+        {/* 水槽用：手前側の水濁りレイヤー（生き物の手前に薄く霞みをかける） */}
+        <div className={styles.waterFrontOverlay} aria-hidden="true" />
 
         {/* 右側：縦並びメニューバー */}
         <nav className={styles.rightMenuBar} aria-label="メインメニュー">
@@ -324,7 +356,7 @@ export default function HomeMain() {
           </button>
         </nav>
 
-        {/* 下部中央：水分補給（じょうろ）ボタン */}
+        {/* 下部中央：水分補給ボタン */}
         <div className={styles.bottomWateringZone}>
           <div className={styles.leafLeft} aria-hidden="true" />
           <div className={styles.leafRight} aria-hidden="true" />
