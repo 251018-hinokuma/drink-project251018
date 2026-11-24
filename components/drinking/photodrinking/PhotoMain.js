@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
 import styles from "./PhotoMain.module.css";
-import Footer from "@/components/Footer";
+import Footer from "@/components/footer/Footer";
 export default function PhotoMain() {
   const [imageBefore, setImageBefore] = useState(null);
   const [imageAfter, setImageAfter] = useState(null);

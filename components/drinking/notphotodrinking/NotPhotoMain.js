@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
 import styles from "./NotPhotoMain.module.css";
-import Footer from "@/components/Footer";
+import Footer from "@/components/footer/Footer";
 export default function NotPhotoMain() {
   const [customValue, setCustomValue] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);

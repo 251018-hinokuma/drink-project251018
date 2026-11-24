@@ -5,7 +5,7 @@ import { useDrink } from "@/context/DrinkContext";
 import { getuseUI } from "@/lib/functions";
 import flowerStyles from "./HomeFlower.module.css";
 import aquariumStyles from "./HomeAquarium.module.css";
-import Footer from "@/components/Footer";
+import Footer from "@/components/footer/Footer";
 
 const THEME_STYLES = {
   1: flowerStyles,

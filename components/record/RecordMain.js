@@ -5,7 +5,7 @@ import { useDrink } from "@/context/DrinkContext";
 import { SearchDate } from "@/lib/functions";
 import Header from "@/components/header/Header";
 import styles from "./RecordMain.module.css";
-import Footer from "@/components/Footer";
+import Footer from "@/components/footer/Footer";
 export default function RecordMain() {
   const { user, setNowScreen, setSearchDate } = useDrink();
   // 初期状態 {} のときはすべて折りたたみ（true になった項目だけ展開）
