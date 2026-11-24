@@ -68,6 +68,7 @@ export default function HomeMain() {
     );
   }
 
+  const isAquarium = Number(useUI.UIId) === 2;
   const styles = THEME_STYLES[Number(useUI.UIId)] || flowerStyles;
 
   // --- 1. 現在時刻と昼夜・太陽/月の位置計算 ---
@@ -153,6 +154,18 @@ export default function HomeMain() {
       >
         {/* 水槽用：背景専用の水濁りレイヤー（文字やキャラの後ろに配置） */}
         <div className={styles.waterBackOverlay} aria-hidden="true" />
+
+        {/* 水槽用：下から上へ昇る気泡アニメーション */}
+        {isAquarium && (
+          <div className={styles.aquariumBubbles} aria-hidden="true">
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+            <span />
+          </div>
+        )}
 
         {/* 最上部固定バー：左（ユーザー名）・中央（現在地）・右（タイマー稼働時間） */}
         <header className={styles.topHeaderBar}>
@@ -270,11 +283,9 @@ export default function HomeMain() {
           </span>
         </div>
 
-        {/* 中央：メインキャラクター（花 / 水槽の生き物） */}
+        {/* 中央：メインキャラクター（花 / 水槽の魚） */}
         <div className={styles.centerFlowerZone}>
-          <span className={styles.progressBadge}>
-            段階 {safeProgressIndex} {isWilted ? "（水質注意）" : ""}
-          </span>
+   
 
           <div
             className={`${styles.flowerWrapper} ${
