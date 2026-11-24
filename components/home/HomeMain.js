@@ -305,64 +305,7 @@ export default function HomeMain() {
           <div className={styles.stemLine} aria-hidden="true" />
         </div>
 
-        {/* 右側：縦並びメニューバー */}
-        <nav className={styles.rightMenuBar} aria-label="メインメニュー">
-          <button
-            type="button"
-            onClick={() => setNowScreen("MYDRINKLIST")}
-            className={`${styles.menuButton} ${styles.bottleShape}`}
-          >
-            <UIAsset
-              src={useUI.MyDrinkUI}
-              alt="マイドリンク"
-              fallbackText="マイドリンク"
-              className={styles.menuFallbackText}
-              imgClassName={styles.menuIconImg}
-            />
-          </button>
 
-          <button
-            type="button"
-            onClick={() => setNowScreen("RECORD")}
-            className={`${styles.menuButton} ${styles.bookShape}`}
-          >
-            <UIAsset
-              src={useUI.RecordUI}
-              alt="記録"
-              fallbackText="記録"
-              className={styles.menuFallbackText}
-              imgClassName={styles.menuIconImg}
-            />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setNowScreen("SETTING")}
-            className={`${styles.menuButton} ${styles.gearShape}`}
-          >
-            <UIAsset
-              src={useUI.SettingUI}
-              alt="設定"
-              fallbackText="設定"
-              className={styles.menuFallbackText}
-              imgClassName={styles.menuIconImg}
-            />
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setNowScreen("CHANGEUI")}
-            className={`${styles.menuButton} ${styles.uiPictureShape}`}
-          >
-            <UIAsset
-              src={useUI.UiUI}
-              alt="UI変更"
-              fallbackText="UI"
-              className={styles.menuFallbackText}
-              imgClassName={styles.menuIconImg}
-            />
-          </button>
-        </nav>
 
         {/* 下部中央：水分補給ボタン（花テーマ時のみ葉っぱを表示） */}
         <div className={styles.bottomWateringZone}>
