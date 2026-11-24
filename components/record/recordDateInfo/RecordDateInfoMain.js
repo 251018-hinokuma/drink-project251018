@@ -4,7 +4,7 @@ import { useDrink } from "@/context/DrinkContext";
 import { searchDrinkDate, sortSearchDrinkDate } from "@/lib/functions";
 import Header from "@/components/header/Header";
 import styles from "./RecordDateInfoMain.module.css";
-
+import Footer from "@/components/Footer";
 export default function RecordDateInfoMain() {
   const { user, searchDate } = useDrink();
 
@@ -69,6 +69,7 @@ export default function RecordDateInfoMain() {
             )}
           </section>
         </div>
+        <Footer />
       </main>
     </div>
   );

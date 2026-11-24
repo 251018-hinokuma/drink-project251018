@@ -5,6 +5,7 @@ import { useDrink } from "@/context/DrinkContext";
 import { getuseUI } from "@/lib/functions";
 import flowerStyles from "./HomeFlower.module.css";
 import aquariumStyles from "./HomeAquarium.module.css";
+import Footer from "@/components/Footer";
 
 const THEME_STYLES = {
   1: flowerStyles,
@@ -385,6 +386,7 @@ export default function HomeMain() {
             />
           </button>
         </div>
+        <Footer />
       </main>
     </div>
   );

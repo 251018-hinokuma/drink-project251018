@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
 import styles from "./SettingMain.module.css";
-
+import Footer from "@/components/Footer";
 export default function SettingMain() {
   const { user, updateUser, setDrinkTimer } = useDrink();
 
@@ -225,6 +225,7 @@ export default function SettingMain() {
             </div>
           </section>
         </div>
+        <Footer />
       </main>
     </div>
   );

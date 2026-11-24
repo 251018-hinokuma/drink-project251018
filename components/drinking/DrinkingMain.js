@@ -3,7 +3,7 @@
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
 import styles from "./DrinkingMain.module.css";
-
+import Footer from "@/components/Footer";
 export default function DrinkingMain() {
   const { setUseMydrink, setNowScreen } = useDrink();
 
@@ -37,7 +37,9 @@ export default function DrinkingMain() {
             </button>
           </div>
         </div>
+        <Footer />
       </main>
+
     </div>
   );
 }

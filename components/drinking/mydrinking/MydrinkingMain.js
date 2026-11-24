@@ -3,7 +3,7 @@
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
 import styles from "./MydrinkingMain.module.css";
-
+import Footer from "@/components/Footer";
 export default function MydrinkingMain() {
   const {
     user,
@@ -109,7 +109,9 @@ export default function MydrinkingMain() {
             </div>
           </div>
         </div>
+        <Footer />
       </main>
+      
     </div>
   );
 }

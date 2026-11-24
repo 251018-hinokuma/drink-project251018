@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
 import styles from "./PhotoMain.module.css";
-
+import Footer from "@/components/Footer";
 export default function PhotoMain() {
   const [imageBefore, setImageBefore] = useState(null);
   const [imageAfter, setImageAfter] = useState(null);
@@ -318,7 +318,9 @@ export default function PhotoMain() {
             </button>
           </form>
         </div>
+        <Footer />
       </main>
+      
     </div>
   );
 }

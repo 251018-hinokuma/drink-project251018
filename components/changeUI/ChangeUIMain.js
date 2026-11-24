@@ -4,7 +4,7 @@ import { useDrink } from "@/context/DrinkContext";
 import { getuseUI } from "@/lib/functions";
 import Header from "@/components/header/Header";
 import styles from "./ChangeUIMain.module.css";
-
+import Footer from "@/components/Footer";
 export default function ChangeUIMain() {
   const { user, UI, updateUser } = useDrink();
 
@@ -85,7 +85,9 @@ export default function ChangeUIMain() {
             </section>
           </div>
         </div>
+        <Footer />
       </main>
+      
     </div>
   );
 }

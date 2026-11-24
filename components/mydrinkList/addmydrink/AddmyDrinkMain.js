@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useDrink } from "@/context/DrinkContext";
 import Header from "@/components/header/Header";
 import styles from "./AddmyDrinkMain.module.css";
-
+import Footer from "@/components/Footer";
 export default function AddmyDrinkMain() {
   const { user, setUser, setNowScreen } = useDrink();
 
@@ -132,6 +132,7 @@ export default function AddmyDrinkMain() {
             </button>
           </form>
         </div>
+        <Footer />
       </main>
     </div>
   );

@@ -1,0 +1,111 @@
+.footerBar {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 480px; /* アプリ画面幅に合わせて調整してください */
+  height: 74px;
+  display: grid;
+  /* 左から マイドリンク : 記録 : ホーム(広め) : 設定 : UI */
+  grid-template-columns: 1fr 1fr 1.55fr 1fr 1fr;
+  background-color: #ffffff;
+  border-top: 2px solid #222222;
+  border-bottom: 2px solid #222222;
+  z-index: 100;
+  overflow: visible; /* ボトルや本のアイコンを少し上にはみ出させるため */
+}
+
+.navButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 4px;
+  background: transparent;
+  border: none;
+  border-right: 2px solid #222222;
+  cursor: pointer;
+  overflow: visible;
+  transition: background-color 0.15s ease;
+}
+
+.navButton:first-child {
+  border-left: 2px solid #222222;
+}
+
+.navButton:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.navButton.active {
+  background-color: rgba(135, 206, 250, 0.22);
+}
+
+/* 背景アイコン共通 */
+.bgIcon {
+  position: absolute;
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+  pointer-events: none;
+  mix-blend-mode: multiply; /* JPGの白背景を透過 */
+  opacity: 0.9;
+}
+
+/* ワイヤーフレーム通り、マイドリンク(ボトル)と記録(本)は上枠から少し飛び出す配置 */
+.bottleItem .bgIcon {
+  top: -16px;
+  width: 64px;
+  height: 82px;
+}
+
+.bookItem .bgIcon {
+  top: -12px;
+  width: 66px;
+  height: 74px;
+}
+
+.gearItem .bgIcon {
+  width: 60px;
+  height: 60px;
+}
+
+.frameItem .bgIcon {
+  width: 58px;
+  height: 58px;
+}
+
+/* アイコンの上に重なるラベル文字 */
+.label {
+  position: relative;
+  z-index: 2;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #111111;
+  text-align: center;
+  word-break: keep-all;
+  /* アイコンと重なっても読みやすい白フチ取り */
+  text-shadow:
+    -1.5px -1.5px 0 #ffffff,
+     1.5px -1.5px 0 #ffffff,
+    -1.5px  1.5px 0 #ffffff,
+     1.5px  1.5px 0 #ffffff,
+     0px    0px   4px #ffffff;
+}
+
+/* 「マイドリンク」だけ2行で収まりやすくする */
+.bottleItem .label {
+  max-width: 4.2em;
+  word-break: break-all;
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+/* 中央の「ホーム」ボタン */
+.homeItem .label {
+  font-size: 17px;
+  letter-spacing: 0.05em;
+}
