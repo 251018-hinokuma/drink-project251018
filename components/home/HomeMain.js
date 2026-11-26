@@ -12,6 +12,17 @@ const THEME_STYLES = {
   2: aquariumStyles,
 };
 
+const DEBUG_WEATHERS = [
+  "快晴",
+  "晴れ",
+  "曇り",
+  "霧",
+  "雨",
+  "雪",
+  "にわか雨",
+  "雷雨",
+];
+
 function isImageSource(value) {
   if (typeof value !== "string") return false;
   return (
@@ -22,9 +33,61 @@ function isImageSource(value) {
   );
 }
 
+/* JPGなどの白背景を自動透過して表示するコンポーネント */
+function TransparentImage({ src, alt, className }) {
+  const [processedSrc, setProcessedSrc] = useState(src);
+
+  useEffect(() => {
+    if (!src) return;
+    let isCancelled = false;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth || img.width;
+        canvas.height = img.naturalHeight || img.height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+        ctx.drawImage(img, 0, 0);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+          const minChannel = Math.min(data[i], data[i + 1], data[i + 2]);
+          if (minChannel >= 242) {
+            data[i + 3] = 0;
+          } else if (minChannel >= 220) {
+            const ratio = (242 - minChannel) / 22;
+            data[i + 3] = Math.round(data[i + 3] * ratio);
+          }
+        }
+        ctx.putImageData(imageData, 0, 0);
+        if (!isCancelled) {
+          setProcessedSrc(canvas.toDataURL("image/png"));
+        }
+      } catch {
+        if (!isCancelled) setProcessedSrc(src);
+      }
+    };
+    img.src = src;
+    return () => {
+      isCancelled = true;
+    };
+  }, [src]);
+
+  return <img src={processedSrc} alt={alt} className={className} />;
+}
+
 function UIAsset({ src, alt, fallbackText, className, imgClassName }) {
   if (isImageSource(src)) {
-    return <img src={src} alt={alt} className={imgClassName || className} />;
+    return (
+      <TransparentImage
+        src={src}
+        alt={alt}
+        className={imgClassName || className}
+      />
+    );
   }
   return <span className={className}>{src || fallbackText}</span>;
 }
@@ -43,6 +106,7 @@ export default function HomeMain() {
   } = useDrink();
 
   const [now, setNow] = useState(() => new Date());
+  const [debugWeather, setDebugWeather] = useState(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -97,24 +161,27 @@ export default function HomeMain() {
         return useUI.WeatherUI_2;
       case "霧":
         return useUI.WeatherUI_3;
-      case "にわか雨":
-        return useUI.WeatherUI_4;
       case "雨":
-        return useUI.WeatherUI_5;
-      case "雷雨":
-        return useUI.WeatherUI_6;
+        return useUI.WeatherUI_4;
       case "雪":
+        return useUI.WeatherUI_5;
+      case "にわか雨":
+        return useUI.WeatherUI_6;
+      case "雷雨":
         return useUI.WeatherUI_7;
       default:
         return useUI.WeatherUI_1;
     }
   };
 
-  const currentWeather = weatherData?.weather || "";
+  const currentWeather = debugWeather ?? weatherData?.weather ?? "";
   const weatherAsset = getWeatherAsset(currentWeather);
+  const isClearSky = currentWeather === "快晴";
+  const isSunny = currentWeather === "晴れ";
+  const isFog = currentWeather === "霧";
+  const hasWeatherVisual = Boolean(currentWeather) && !isClearSky && !isSunny;
   const isRaining = ["雨", "にわか雨", "雷雨"].includes(currentWeather);
   const isSnowing = currentWeather === "雪";
-  const isClearSky = currentWeather === "快晴";
 
   // --- 3. 進捗段階に応じたメインUIと水の濁りレベル（0〜4） ---
   const progressAssets = [
@@ -191,7 +258,7 @@ export default function HomeMain() {
           </div>
         </header>
 
-        {/* 昼なら太陽 / 夜なら月 */}
+        {/* レイヤー1（一番下）：昼なら太陽 / 夜なら月 */}
         <div
           className={`${styles.celestialBody} ${isDay ? styles.sunBody : styles.moonBody}`}
           style={{
@@ -205,6 +272,54 @@ export default function HomeMain() {
             fallbackText=""
             imgClassName={styles.celestialBgImg}
           />
+        </div>
+
+        {/* 快晴時のみ：太陽の周囲・下方向へ光が降り注ぐ演出 */}
+        {isClearSky && isDay && (
+          <div
+            className={styles.sunRaysOverlay}
+            style={{
+              left: `${celestialLeft}%`,
+              top: `${celestialTop}px`,
+            }}
+            aria-hidden="true"
+          >
+            <span className={styles.rayLeft} />
+            <span className={styles.rayBottomLeft} />
+            <span className={styles.rayBottom} />
+            <span className={styles.rayBottomRight} />
+            <span className={styles.rayRight} />
+          </div>
+        )}
+
+        {/* レイヤー2（真ん中）：晴れ・快晴以外の天気画像（太陽を覆う位置・サイズ） */}
+        {/* レイヤー2（真ん中）：晴れ・快晴以外の天気画像（画面横幅いっぱい） */}
+        {hasWeatherVisual && (
+          <div
+            className={`${styles.weatherZone} ${isFog ? styles.fogWeather : ""}`}
+          >
+            <div className={styles.cloudBox}>
+              <UIAsset
+                src={weatherAsset}
+                alt={currentWeather}
+                fallbackText={currentWeather}
+                className={styles.cloudFallback}
+                imgClassName={styles.weatherImg}
+              />
+            </div>
+
+            
+          </div>
+        )}
+
+        {/* レイヤー3（一番上）：時刻・温度・湿度（雲より上のレイヤー） */}
+        <div
+          className={styles.celestialInfoWrapper}
+          style={{
+            left: `${celestialLeft}%`,
+            top: `${celestialTop}px`,
+          }}
+        >
           <div className={styles.celestialInfo}>
             <div className={styles.clockText}>{formattedTime}</div>
             <div className={styles.weatherMetrics}>
@@ -216,50 +331,6 @@ export default function HomeMain() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* 左上：天気（雲・雨・雪） */}
-        <div className={styles.weatherZone}>
-          {!isClearSky && (
-            <div className={styles.cloudBox}>
-              <UIAsset
-                src={weatherAsset}
-                alt={currentWeather || "天気"}
-                fallbackText={`☁ ${currentWeather || "天気取得中"}`}
-                className={styles.cloudFallback}
-                imgClassName={styles.weatherImg}
-              />
-            </div>
-          )}
-
-          {isClearSky && (
-            <div className={styles.clearBadge}>
-              <UIAsset
-                src={weatherAsset}
-                alt="快晴"
-                fallbackText="☀ 快晴"
-                className={styles.clearFallback}
-                imgClassName={styles.weatherImg}
-              />
-            </div>
-          )}
-
-          {isRaining && (
-            <div className={styles.precipitation} aria-hidden="true">
-              <span />
-              <span />
-              <span />
-              <span />
-              <span />
-            </div>
-          )}
-          {isSnowing && (
-            <div className={styles.snowfall} aria-hidden="true">
-              <span>❄</span>
-              <span>❄</span>
-              <span>❄</span>
-            </div>
-          )}
         </div>
 
         {/* 左中段：時計回り％ゲージ付きタイマー */}
@@ -286,8 +357,6 @@ export default function HomeMain() {
 
         {/* 中央：メインキャラクター（花 / 水槽の魚） */}
         <div className={styles.centerFlowerZone}>
-   
-
           <div
             className={`${styles.flowerWrapper} ${
               isWilted ? styles.flowerWilted : styles.flowerHealthy
@@ -305,8 +374,6 @@ export default function HomeMain() {
           <div className={styles.stemLine} aria-hidden="true" />
         </div>
 
-
-
         {/* 下部中央：水分補給ボタン（花テーマ時のみ葉っぱを表示） */}
         <div className={styles.bottomWateringZone}>
           {Number(useUI.UIId) === 1 && (
@@ -320,15 +387,78 @@ export default function HomeMain() {
             onClick={() => setNowScreen("DRINKING")}
             className={styles.wateringButton}
           >
-            <UIAsset
-              src={useUI.DrinkingUI}
-              alt="水分補給"
-              fallbackText="水分補給"
-              className={styles.wateringFallbackText}
-              imgClassName={styles.wateringIconImg}
-            />
+            {isImageSource(useUI.DrinkingUI) ? (
+              <>
+                <TransparentImage
+                  src={useUI.DrinkingUI}
+                  alt=""
+                  aria-hidden="true"
+                  className={styles.wateringIconImg}
+                />
+                <span className={styles.wateringLabel}>水分補給</span>
+              </>
+            ) : (
+              <span className={styles.wateringFallbackText}>
+                {useUI.DrinkingUI || "水分補給"}
+              </span>
+            )}
           </button>
         </div>
+
+        {/* 天気デバッグパネル（右上に常時表示） */}
+        <div
+          style={{
+            position: "fixed",
+            top: "12px",
+            right: "12px",
+            zIndex: 9999,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "4px",
+            maxWidth: "240px",
+            padding: "6px",
+            borderRadius: "8px",
+            background: "rgba(0, 0, 0, 0.72)",
+            color: "#fff",
+            fontSize: "11px",
+          }}
+        >
+          {DEBUG_WEATHERS.map((w) => (
+            <button
+              key={w}
+              type="button"
+              onClick={() => setDebugWeather(w)}
+              style={{
+                padding: "2px 6px",
+                borderRadius: "4px",
+                border: "none",
+                cursor: "pointer",
+                fontSize: "11px",
+                background: currentWeather === w ? "#facc15" : "#374151",
+                color: currentWeather === w ? "#111827" : "#fff",
+                fontWeight: currentWeather === w ? "bold" : "normal",
+              }}
+            >
+              {w}
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => setDebugWeather(null)}
+            style={{
+              padding: "2px 6px",
+              borderRadius: "4px",
+              border: "none",
+              cursor: "pointer",
+              fontSize: "11px",
+              background: debugWeather === null ? "#2563eb" : "#4b5563",
+              color: "#fff",
+            }}
+          >
+            解除
+          </button>
+        </div>
+
         <Footer />
       </main>
     </div>
